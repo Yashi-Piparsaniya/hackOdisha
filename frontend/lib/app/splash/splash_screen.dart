@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../../utils/utils.dart';
 import '../common/themes/colors.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -10,6 +10,11 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    navigateToLogin(context);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
