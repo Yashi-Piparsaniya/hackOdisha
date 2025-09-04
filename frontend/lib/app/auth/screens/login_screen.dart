@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../services/api_service.dart';
 import '../../common/themes/colors.dart';
 
@@ -27,7 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
 
   bool isLoading = false;
   @override
