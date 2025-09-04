@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hack_odisha/routes/routes.dart';
 
 import 'app/common/themes/colors.dart';
+import 'app/common/themes/text_field_theme.dart';
+import 'app/common/themes/typography.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Campusify',
+      title: 'SwasthAI',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: AppColors.primary,

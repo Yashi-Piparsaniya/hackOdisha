@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../common/themes/colors.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -10,6 +12,33 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      backgroundColor: AppColors.primary,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(seconds: 1),
+              builder: (context, value, child) {
+                return Opacity(opacity: value, child: child);
+              },
+              child: Text(
+                'SwasthAI',
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  color: AppColors.accent,
+                  fontSize: 48,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.background),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
