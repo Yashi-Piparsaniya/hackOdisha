@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hack_odisha/app/auth/screens/assistant.dart';
+import 'package:hack_odisha/app/auth/screens/profile.dart';
 import '../../common/themes/colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -9,45 +11,33 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int currentPage=0;
+  List<Widget> pages = const [Assistant(), Profile()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(" "),
-        backgroundColor: AppColors.primary,
+      body: IndexedStack(
+        index: currentPage,
+        children: pages,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30) ,bottomRight: Radius.circular(30)),
-              ),
-              child: Center(
-                  child: Column(
-                    children: [
-                      Text("Hello! How are you feeling today?",
-                        style: Theme.of(
-                          context,
-                        ).textTheme.displayLarge?.copyWith(color: AppColors.text),
-                      ),
-                      const SizedBox(height: 16),
-                      Text("Get instant advice from the AI assistant!",
-                        style: Theme.of(
-                          context,
-                        ).textTheme.displayMedium?.copyWith(color: AppColors.text),
-                      ),
-                    ],
-                  )
-              ),
+      bottomNavigationBar: BottomNavigationBar(
+          selectedItemColor: AppColors.primary,
+          currentIndex: currentPage,
+          onTap: (value){
+            setState(() {
+              currentPage=value;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.assistant , size: 30,),
+              label: "",
             ),
-            const SizedBox(height: 75),
-
-          ],
-        ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person , size: 30),
+              label: "",
+            ),
+          ]
       ),
     );
   }
