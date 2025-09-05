@@ -60,6 +60,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text("Welcome! Let's get started...",
+              style: Theme.of(
+                context,
+              ).textTheme.displayLarge?.copyWith(color: AppColors.text),
+            ),
+            const SizedBox(height: 16),
             TextFormField(
               controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
