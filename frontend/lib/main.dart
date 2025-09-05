@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hack_odisha/routes/routes.dart';
-
 import 'app/common/themes/colors.dart';
 import 'app/common/themes/text_field_theme.dart';
 import 'app/common/themes/typography.dart';
@@ -32,7 +31,7 @@ class MyApp extends StatelessWidget {
         ),
         inputDecorationTheme: AppTextFieldTheme.theme,
       ),
-      initialRoute: AppRoutes.splash,
+      initialRoute: AppRoutes.home,
       onGenerateRoute: AppRoutes.generateRoute,
     );
   }
