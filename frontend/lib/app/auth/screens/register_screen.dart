@@ -14,6 +14,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscurePassword1 = true;
 
   bool isLoading = false;
   void showSnack(String message) {
@@ -30,6 +32,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+  @override
+  void dispose() {
+    usernameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +60,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text("Welcome! Let's get started...",
+              style: Theme.of(
+                context,
+              ).textTheme.displayLarge?.copyWith(color: AppColors.text),
+            ),
+            const SizedBox(height: 16),
             TextFormField(
               controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
@@ -60,15 +77,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              obscureText: true,
+              obscureText: _obscurePassword,
               controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                labelText: 'Password',
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             TextFormField(
-              obscureText: true,
+              obscureText: _obscurePassword1,
               controller: confirmPasswordController,
-              decoration: const InputDecoration(labelText: 'Confirm Password'),
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword1 ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword1 = !_obscurePassword1;
+                    });
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -123,7 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.primary,
+                  color: AppColors.accent,
                 ),
               )
                   : Text(
@@ -138,13 +175,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Text("Already have an account?"),
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pushReplacementNamed(context, '/login');
                   },
                   child: Text(
                     'Login',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
+
               ],
             ),
           ],
