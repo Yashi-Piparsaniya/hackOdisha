@@ -46,48 +46,58 @@ class _AssistantState extends State<Assistant> {
               ),
             ),
             const SizedBox(height: 75),
-            Container(
-              height: 175,
-              width: 175,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.accent],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            GestureDetector(
+              onTap: (){
+                Navigator.pushNamed(context, "/chat");
+              },
+              child: Container(
+                height: 175,
+                width: 175,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.accent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.chat_outlined , color: AppColors.text, size: 40,),
-                    Text("Chat")
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.chat_outlined , color: AppColors.text, size: 40,),
+                      Text("Chat")
+                    ],
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 25),
-            Container(
-              height: 175,
-              width: 175,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.accent],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            GestureDetector(
+              onTap:(){
+                Navigator.pushNamed(context, "/history");
+              },
+              child: Container(
+                height: 175,
+                width: 175,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.accent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.history , color: AppColors.text, size: 40,),
-                    Text("History")
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.history , color: AppColors.text, size: 40,),
+                      Text("History")
+                    ],
+                  ),
                 ),
               ),
             )
