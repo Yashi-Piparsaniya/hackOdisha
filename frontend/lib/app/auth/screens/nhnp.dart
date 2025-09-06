@@ -129,16 +129,6 @@ class _NHNPPageState extends State<NHNPPage> {
                     hintText: "Enter city name",
                     hintStyle: TextStyle(color: AppColors.text.withOpacity(0.6)),
                     border: InputBorder.none,
-                    suffixIcon: _controller.text.isNotEmpty
-                        ? IconButton(
-                      icon: Icon(Icons.clear, color: AppColors.text),
-                      onPressed: () {
-                        _controller.clear();
-                        setState(() => city = "Rourkela"); // default city
-                        fetchPlaces();
-                      },
-                    )
-                        : null,
                   ),
                   onSubmitted: (value) {
                     setState(() => city = value);

@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
           displayMedium: AppTypography.headline2,
           bodyLarge: AppTypography.bodyText1,
           bodyMedium: AppTypography.bodyText2,
-          labelLarge: AppTypography.button,
+          labelLarge: AppTypography.button
         ),
         inputDecorationTheme: AppTextFieldTheme.theme,
       ),
