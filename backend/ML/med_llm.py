@@ -149,9 +149,104 @@ disease_rules = {
 }
 
 # Specialists & Care Tips
+# 1️⃣ Base dictionaries
 specialists = {d: "General Physician" for d in disease_rules.keys()}  
 care_tips = {d: f"Rest, hydrate, consult doctor. More info: https://www.google.com/search?q={d.replace(' ','+')}" 
-             for d in disease_rules.keys()}
+             for d in disease_rules.keys()} 
+
+# ------------------------------ UPDATED SPECIALISTS & CARE TIPS ------------------------------
+specialists.update({
+    "Migraine": "Neurologist",
+    "Heart Attack": "Cardiologist",
+    "Stroke": "Neurologist",
+    "Diabetes": "Endocrinologist",
+    "COVID-19": "Infectious Disease Specialist",
+    "Typhoid": "Gastroenterologist",
+    "Pneumonia": "Pulmonologist",
+    "Asthma": "Pulmonologist",
+    "Hypertension": "Cardiologist",
+    "Appendicitis": "Surgeon",
+    "Allergy": "Allergist/Immunologist",
+    "Bronchitis": "Pulmonologist",
+    "Anemia": "Hematologist",
+    "Hypothyroidism": "Endocrinologist",
+    "Hyperthyroidism": "Endocrinologist",
+    "Arthritis": "Rheumatologist",
+    "Back Pain": "Orthopedic",
+    "Kidney Stones": "Urologist",
+    "Liver Disease": "Hepatologist",
+    "Gastroenteritis": "Gastroenterologist",
+    "Sinusitis": "ENT Specialist",
+    "Depression": "Psychiatrist",
+    "Anxiety": "Psychiatrist",
+    "Insomnia": "Psychiatrist",
+    "Obesity": "Nutritionist / Endocrinologist",
+    "Osteoporosis": "Endocrinologist / Orthopedic",
+    "Heart Failure": "Cardiologist",
+    "COPD": "Pulmonologist",
+    "Tuberculosis": "Pulmonologist / Infectious Disease Specialist",
+    "Malaria": "Infectious Disease Specialist",
+    "Chickenpox": "Dermatologist / Pediatrician",
+    "Measles": "Pediatrician / Infectious Disease Specialist",
+    "Hepatitis": "Hepatologist / Gastroenterologist",
+    "Ulcer": "Gastroenterologist",
+    "Ear Infection": "ENT Specialist",
+    "Eye Infection": "Ophthalmologist",
+    "Cold Sores": "Dermatologist",
+    "Skin Infection": "Dermatologist",
+    "Sprain": "Orthopedic",
+    "Fracture": "Orthopedic",
+    "Burn": "Dermatologist / Burn Specialist",
+    "Hypoglycemia": "Endocrinologist",
+    "Hyperglycemia": "Endocrinologist",
+    "Panic Attack": "Psychiatrist"
+})
+
+care_tips.update({
+    "Migraine": "Rest in a dark, quiet room, use cold packs, avoid triggers, consult neurologist. More info: https://www.google.com/search?q=Migraine+care",
+    "Heart Attack": "Call emergency services immediately, chew aspirin if not allergic, stay calm. More info: https://www.google.com/search?q=Heart+Attack+first+aid",
+    "Stroke": "Call emergency services immediately, note symptom onset time, keep patient safe. More info: https://www.google.com/search?q=Stroke+first+aid",
+    "Diabetes": "Monitor blood sugar, maintain diet, stay active, follow medication. More info: https://www.google.com/search?q=Diabetes+management",
+    "COVID-19": "Isolate, monitor oxygen, hydrate, rest, consult doctor if worsening. More info: https://www.google.com/search?q=COVID+care",
+    "Typhoid": "Take prescribed antibiotics, maintain hydration, avoid street food. More info: https://www.google.com/search?q=Typhoid+care",
+    "Pneumonia": "Rest, complete antibiotic course, monitor breathing, drink fluids. More info: https://www.google.com/search?q=Pneumonia+care",
+    "Asthma": "Avoid triggers, use inhaler, monitor peak flow, consult pulmonologist. More info: https://www.google.com/search?q=Asthma+management",
+    "Hypertension": "Monitor BP, reduce salt, exercise, consult cardiologist. More info: https://www.google.com/search?q=Hypertension+management",
+    "Appendicitis": "Seek immediate medical attention, avoid food/water until surgery. More info: https://www.google.com/search?q=Appendicitis+care",
+    "Allergy": "Avoid allergens, use antihistamines, consult allergist. More info: https://www.google.com/search?q=Allergy+care",
+    "Bronchitis": "Rest, hydrate, avoid smoke, follow doctor advice. More info: https://www.google.com/search?q=Bronchitis+care",
+    "Anemia": "Consume iron-rich foods, follow supplements, consult hematologist. More info: https://www.google.com/search?q=Anemia+management",
+    "Hypothyroidism": "Take thyroid medication, regular check-ups, maintain diet. More info: https://www.google.com/search?q=Hypothyroidism+care",
+    "Hyperthyroidism": "Medication compliance, avoid stimulants, regular monitoring. More info: https://www.google.com/search?q=Hyperthyroidism+management",
+    "Arthritis": "Physiotherapy, anti-inflammatory meds, joint care. More info: https://www.google.com/search?q=Arthritis+management",
+    "Back Pain": "Avoid heavy lifting, gentle exercises, consult orthopedic. More info: https://www.google.com/search?q=Back+Pain+management",
+    "Kidney Stones": "Hydrate, pain management, consult urologist. More info: https://www.google.com/search?q=Kidney+Stones+care",
+    "Liver Disease": "Avoid alcohol, maintain healthy diet, consult hepatologist. More info: https://www.google.com/search?q=Liver+Disease+care",
+    "Sinusitis": "Use saline nasal sprays, rest, consult ENT if severe. More info: https://www.google.com/search?q=Sinusitis+care",
+    "Depression": "Maintain routine, talk to a psychiatrist, avoid isolation. More info: https://www.google.com/search?q=Depression+care",
+    "Anxiety": "Relaxation techniques, therapy, consult psychiatrist if persistent. More info: https://www.google.com/search?q=Anxiety+management",
+    "Insomnia": "Maintain sleep hygiene, avoid caffeine, consult psychiatrist if chronic. More info: https://www.google.com/search?q=Insomnia+care",
+    "Obesity": "Balanced diet, exercise, consult nutritionist/endocrinologist. More info: https://www.google.com/search?q=Obesity+management",
+    "Osteoporosis": "Calcium & vitamin D intake, weight-bearing exercise, consult doctor. More info: https://www.google.com/search?q=Osteoporosis+care",
+    "Heart Failure": "Monitor symptoms, follow cardiologist advice, medication compliance. More info: https://www.google.com/search?q=Heart+Failure+management",
+    "COPD": "Avoid smoke, take prescribed inhalers, monitor breathing. More info: https://www.google.com/search?q=COPD+management",
+    "Tuberculosis": "Follow antibiotic course strictly, rest, consult pulmonologist. More info: https://www.google.com/search?q=Tuberculosis+management",
+    "Malaria": "Hydrate, take prescribed medication, monitor fever. More info: https://www.google.com/search?q=Malaria+care",
+    "Chickenpox": "Rest, avoid scratching, maintain hygiene. More info: https://www.google.com/search?q=Chickenpox+care",
+    "Measles": "Isolate, hydrate, consult pediatrician. More info: https://www.google.com/search?q=Measles+care",
+    "Hepatitis": "Avoid alcohol, maintain diet, consult hepatologist. More info: https://www.google.com/search?q=Hepatitis+care",
+    "Ulcer": "Avoid spicy food, follow doctor medication. More info: https://www.google.com/search?q=Ulcer+care",
+    "Ear Infection": "Keep ear dry, consult ENT, avoid cotton swabs. More info: https://www.google.com/search?q=Ear+Infection+care",
+    "Eye Infection": "Avoid touching eyes, follow ophthalmologist advice. More info: https://www.google.com/search?q=Eye+Infection+care",
+    "Cold Sores": "Use antiviral creams, avoid sharing utensils. More info: https://www.google.com/search?q=Cold+Sores+care",
+    "Skin Infection": "Keep area clean, consult dermatologist. More info: https://www.google.com/search?q=Skin+Infection+care",
+    "Sprain": "Restpython md, ice, compression, elevation, consult orthopedic if severe. More info: https://www.google.com/search?q=Sprain+care",
+    "Fracture": "Immobilize, seek orthopedic care immediately. More info: https://www.google.com/search?q=Fracture+care",
+    "Burn": "Cool the area, avoid breaking blisters, consult burn specialist. More info: https://www.google.com/search?q=Burn+care",
+    "Hypoglycemia": "Consume fast-acting sugar, monitor glucose, consult endocrinologist. More info: https://www.google.com/search?q=Hypoglycemia+care",
+    "Hyperglycemia": "Hydrate, monitor glucose, follow medication. More info: https://www.google.com/search?q=Hyperglycemia+management",
+    "Panic Attack": "Practice breathing techniques, stay calm, consult psychiatrist if frequent. More info: https://www.google.com/search?q=Panic+Attack+care"
+})
 
 # ------------------------------ DISEASE PREDICTION ------------------------------
 def predict_disease(symptoms):
