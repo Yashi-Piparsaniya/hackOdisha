@@ -13,7 +13,7 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("AI Assistant"),
+        title: Text("SwasthAI"),
         centerTitle: true,
         backgroundColor: AppColors.primary,
       ),
