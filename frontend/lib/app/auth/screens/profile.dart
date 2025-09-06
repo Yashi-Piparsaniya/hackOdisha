@@ -46,7 +46,6 @@ class _ProfileState extends State<Profile> {
       setState(() {
         _image = File(pickedFile.path);
       });
-      // Upload image to Firebase Storage and update user photoURL if needed
     }
   }
 
