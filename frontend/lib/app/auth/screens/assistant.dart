@@ -13,8 +13,23 @@ class _AssistantState extends State<Assistant> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(" "),
+        centerTitle: true,
         backgroundColor: AppColors.primary,
+        title: ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [AppColors.accent, AppColors.text], // gradient colors
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+          child: Text(
+            "SwasthAI",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 35,
+              color: Colors.white, // this color will be overridden by the gradient
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(

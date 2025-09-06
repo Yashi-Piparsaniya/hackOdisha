@@ -94,14 +94,14 @@ class FAQPage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: const Text("FAQs"),
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.accent,
       ),
       body: ListView.builder(
         itemCount: faqs.length,
         itemBuilder: (context, index) {
           final faq = faqs[index];
           final tileColor = index % 2 == 0
-              ? AppColors.accent
+              ? AppColors.primary
               : Colors.white;
 
           return Card(
