@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../services/api_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/themes/colors.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -16,22 +17,82 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscurePassword1 = true;
-
   bool isLoading = false;
+  late SharedPreferences prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSharedPreferences();
+  }
+
+  Future<void> _initSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
   void showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: AppColors.accent),
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: AppColors.accent),
         ),
-        behavior: SnackBarBehavior.floating ,
+        behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.primary,
       ),
     );
   }
+
+  Future<void> _register() async {
+    final username = usernameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (username.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      showSnack("All fields are required!");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      showSnack("Passwords do not match!");
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Optional: Save username or login state in SharedPreferences
+      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('userEmail', email);
+      await prefs.setString('username', username);
+
+      if (!mounted) return;
+      showSnack("Account created successfully!");
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      String message = "Registration failed!";
+      if (e.code == 'email-already-in-use') {
+        message = "Email is already in use.";
+      } else if (e.code == 'weak-password') {
+        message = "Password is too weak.";
+      } else if (e.code == 'invalid-email') {
+        message = "Invalid email format.";
+      }
+      showSnack(message);
+    } catch (e) {
+      showSnack("Error: $e");
+    }
+
+    setState(() => isLoading = false);
+  }
+
   @override
   void dispose() {
     usernameController.dispose();
@@ -41,7 +102,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,9 +109,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         centerTitle: true,
         title: Text(
           'Register',
-          style: Theme.of(
-            context,
-          ).textTheme.displayMedium?.copyWith(color: AppColors.accent),
+          style: Theme.of(context)
+              .textTheme
+              .displayMedium
+              ?.copyWith(color: AppColors.accent),
         ),
         backgroundColor: AppColors.primary,
       ),
@@ -60,10 +121,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Welcome! Let's get started...",
-              style: Theme.of(
-                context,
-              ).textTheme.displayLarge?.copyWith(color: AppColors.text),
+            Text(
+              "Welcome! Let's get started...",
+              style: Theme.of(context)
+                  .textTheme
+                  .displayLarge
+                  ?.copyWith(color: AppColors.text),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -82,7 +145,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               decoration: InputDecoration(
                 labelText: 'Password',
                 suffixIcon: IconButton(
-                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                  icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility),
                   onPressed: () {
                     setState(() {
                       _obscurePassword = !_obscurePassword;
@@ -98,7 +162,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
                 suffixIcon: IconButton(
-                  icon: Icon(_obscurePassword1 ? Icons.visibility_off : Icons.visibility),
+                  icon: Icon(
+                      _obscurePassword1 ? Icons.visibility_off : Icons.visibility),
                   onPressed: () {
                     setState(() {
                       _obscurePassword1 = !_obscurePassword1;
@@ -109,50 +174,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: isLoading? null
-                  : ()async{
-                setState(() => isLoading = true);
-
-                if (usernameController.text.isEmpty ||
-                    emailController.text.isEmpty ||
-                    passwordController.text.isEmpty ||
-                    confirmPasswordController.text.isEmpty) {
-                  showSnack("All fields are required!");
-                  setState(() => isLoading = false);
-                  return;
-                }
-
-                if (passwordController.text != confirmPasswordController.text) {
-                  showSnack("Passwords do not match!");
-                  setState(() => isLoading = false);
-                  return;
-                }
-
-                try {
-                  final res = await ApiService.register(
-                    usernameController.text.trim(),
-                    emailController.text.trim(),
-                    passwordController.text.trim(),
-                  );
-
-                  if (res['success'] == true) {
-                    showSnack("Account created successfully!");
-                    Navigator.pushReplacementNamed(context, '/home');
-                  } else {
-                    showSnack(res['message'] ?? "Registration failed!");
-                  }
-                } catch (e) {
-                  showSnack("Error: $e");
-                }
-
-                setState(() => isLoading = false);
-              },
+              onPressed: isLoading ? null : _register,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50,
-                  vertical: 15,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
               child: isLoading
                   ? const SizedBox(
@@ -172,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Already have an account?"),
+                const Text("Already have an account?"),
                 TextButton(
                   onPressed: () {
                     Navigator.pushReplacementNamed(context, '/login');
@@ -182,7 +207,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
-
               ],
             ),
           ],

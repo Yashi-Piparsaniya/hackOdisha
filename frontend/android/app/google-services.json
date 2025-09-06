@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "580147198974",
+    "project_id": "swasthai-8e8b4",
+    "storage_bucket": "swasthai-8e8b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:580147198974:android:0058294b85ea470d2edeaf",
+        "android_client_info": {
+          "package_name": "com.example.hack_odisha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFGHbsh1E8994PgIWhr0vXol02X-tBOgI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
