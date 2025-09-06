@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import '../../common/themes/colors.dart';
 
 class NHNPPage extends StatefulWidget {
@@ -29,7 +30,7 @@ class _NHNPPageState extends State<NHNPPage> {
     setState(() => isLoading = true);
 
     try {
-      // Step 1: Find city coordinates (case-insensitive)
+      // Step 1: Find city coordinates
       final cityQuery =
           '[out:json];node["place"="city"]["name"~"^$city\$",i];out;';
       final cityUrl = Uri.parse(
@@ -90,46 +91,73 @@ class _NHNPPageState extends State<NHNPPage> {
     setState(() => isLoading = false);
   }
 
+  Future<void> openMap(double lat, double lon) async {
+    final Uri googleMapsUrl = Uri.parse(
+        "https://www.google.com/maps/search/?api=1&query=$lat,$lon");
+
+    if (await canLaunchUrl(googleMapsUrl)) {
+      await launchUrl(
+        googleMapsUrl,
+        mode: LaunchMode.externalApplication, // Open in Google Maps app / browser
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Could not open map")),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:AppBar(
-        backgroundColor: AppColors.accent.withOpacity(0.2),
-      titleSpacing: 0,
-      title: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                style: TextStyle(color: AppColors.text),
-                decoration: InputDecoration(
-                  hintText: "Enter city name",
-                  hintStyle: TextStyle(color: AppColors.text.withOpacity(0.6)),
-                  border: InputBorder.none,
+      appBar: AppBar(
+        titleSpacing: 0,
+        backgroundColor: AppColors.accent,
+        title: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  style: TextStyle(color: AppColors.text),
+                  decoration: InputDecoration(
+                    hintText: "Enter city name",
+                    hintStyle: TextStyle(color: AppColors.text.withOpacity(0.6)),
+                    border: InputBorder.none,
+                    suffixIcon: _controller.text.isNotEmpty
+                        ? IconButton(
+                      icon: Icon(Icons.clear, color: AppColors.text),
+                      onPressed: () {
+                        _controller.clear();
+                        setState(() => city = "Rourkela"); // default city
+                        fetchPlaces();
+                      },
+                    )
+                        : null,
+                  ),
+                  onSubmitted: (value) {
+                    setState(() => city = value);
+                    fetchPlaces();
+                  },
                 ),
-                onSubmitted: (value) {
-                  setState(() => city = value);
+              ),
+              IconButton(
+                icon: Icon(Icons.search, color: AppColors.text),
+                onPressed: () {
+                  setState(() => city = _controller.text);
                   fetchPlaces();
                 },
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.search, color: AppColors.text),
-              onPressed: () {
-                setState(() => city = _controller.text);
-                fetchPlaces();
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-    body: isLoading
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : places.isEmpty
           ? const Center(child: Text("No data found"))
@@ -143,8 +171,7 @@ class _NHNPPageState extends State<NHNPPage> {
 
           return Card(
             color: tileColor,
-            margin:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -157,9 +184,18 @@ class _NHNPPageState extends State<NHNPPage> {
                 place["type"] == "hospital" ? Colors.red : Colors.green,
               ),
               title: Text(place["name"]),
-              subtitle: Text(place["address"].isEmpty
-                  ? "Lat: ${place["lat"]}, Lon: ${place["lon"]}"
-                  : place["address"]),
+              subtitle: Text(
+                place["address"].isEmpty
+                    ? "Address not available"
+                    : place["address"],
+              ),
+              onTap: () {
+                final lat = place["lat"];
+                final lon = place["lon"];
+                if (lat != null && lon != null) {
+                  openMap(lat, lon);
+                }
+              },
             ),
           );
         },
