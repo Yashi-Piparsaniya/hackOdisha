@@ -22,26 +22,31 @@ class _AssistantState extends State<Assistant> {
           children: [
             Container(
               width: double.infinity,
-              height: 100,
+              height: 180,
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30) ,bottomRight: Radius.circular(30)),
               ),
               child: Center(
-                  child: Column(
-                    children: [
-                      Text("Hello! How are you feeling today?",
-                        style: Theme.of(
-                          context,
-                        ).textTheme.displayLarge?.copyWith(color: AppColors.text),
-                      ),
-                      const SizedBox(height: 16),
-                      Text("Get instant advice from the AI assistant!",
-                        style: Theme.of(
-                          context,
-                        ).textTheme.displayMedium?.copyWith(color: AppColors.text),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text("Hello! How are you feeling today?",
+                          style: Theme.of(
+                            context,
+                          ).textTheme.displayLarge?.copyWith(color: AppColors.text),
+                        ),
+                        const SizedBox(height: 16),
+                        Text("Get instant advice from the AI assistant!",
+                          style: Theme.of(
+                            context,
+                          ).textTheme.displayMedium?.copyWith(color: AppColors.text),
+                        ),
+                      ],
+                    ),
                   )
               ),
             ),

@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         ),
         inputDecorationTheme: AppTextFieldTheme.theme,
       ),
-      initialRoute: AppRoutes.home,
+      initialRoute: AppRoutes.login,
       onGenerateRoute: AppRoutes.generateRoute,
     );
   }

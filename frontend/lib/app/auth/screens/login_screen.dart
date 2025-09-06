@@ -14,7 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   late SharedPreferences prefs;
   late TextEditingController emailController = TextEditingController();
   late TextEditingController passwordController = TextEditingController();
-
+  bool _obscurePassword = true;
   @override
   void initState() {
     super.initState();
@@ -73,9 +73,19 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 16),
             TextFormField(
+              obscureText: _obscurePassword,
               controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                  labelText: 'Password',
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+              ),
             ),
             Row(
               children: [
