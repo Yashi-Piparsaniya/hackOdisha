@@ -32,7 +32,7 @@ class AppRoutes {
       case chat:
         return MaterialPageRoute(builder: (_) => const Chat());
       case history:
-        return MaterialPageRoute(builder: (_) => const History());
+        return MaterialPageRoute(builder: (_) => const HistoryPage());
       case faq:
         return MaterialPageRoute(builder: (_) => const FAQPage());
       case nhnp:

@@ -153,6 +153,8 @@ disease_rules = {
 
 # ------------------------------ SPECIALISTS & CARE TIPS ------------------------------
 # ------------------------------ SPECIALISTS & CARE TIPS ------------------------------
+specialists = {}
+care_tips = {}
 specialists.update({
     "Migraine": "Neurologist",
     "Heart Attack": "Cardiologist",
@@ -216,12 +218,23 @@ care_tips.update({
 def predict_disease(symptoms):
     best_match, max_count = None, 0
     for disease, keywords in disease_rules.items():
-        match_count = sum(1 for s in symptoms if any(word in s for word in keywords) or difflib.get_close_matches(s, keywords, cutoff=0.7))
+        match_count = 0
+        for s in symptoms:
+            for keyword in keywords:
+                if s == keyword or difflib.get_close_matches(s, [keyword], cutoff=0.8):
+                    match_count += 1
+                    break
         if match_count > max_count:
             max_count, best_match = match_count, disease
-    confidence = min((max_count / len(symptoms) * 100), 100) if symptoms else 0  # capped at 100%
-    severity = "High" if best_match in ["Heart Attack","Stroke","Hypoglycemia"] else "Moderate" if confidence>50 else "Low"
+    
+    if not symptoms or not best_match:
+        return None, 0, "Low"
+
+    # Confidence based on how much of the disease's symptom profile is matched
+    confidence = min((max_count / len(disease_rules[best_match]) * 100), 100)
+    severity = "High" if best_match in ["Heart Attack","Stroke","Hypoglycemia"] else "Moderate" if confidence > 50 else "Low"
     return best_match, round(confidence,2), severity
+
 
 # ------------------------------ GRAPH FUNCTIONS ------------------------------
 def plot_confidence_severity(history):

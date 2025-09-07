@@ -98,13 +98,16 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Welcome!",
+              "Welcome! Login to continue your health journey...",
               style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColors.text),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(
+                  labelText: 'Email',
+                prefixIcon: Icon(Icons.mail_outline_sharp)
+              ),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -112,6 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: passwordController,
               decoration: InputDecoration(
                 labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock_open_sharp),
                 suffixIcon: IconButton(
                   icon: Icon(
                       _obscurePassword ? Icons.visibility_off : Icons.visibility),
