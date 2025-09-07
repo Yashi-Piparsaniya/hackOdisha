@@ -25,7 +25,7 @@ class _ChatState extends State<Chat> {
   // 🔊 Text-to-Speech
   late FlutterTts _flutterTts;
 
-  static const String _apiUrl = "http://172.24.219.246:8000/predict";
+  static const String _apiUrl = "http://172.24.219.246:8000/predict"; // Change to your API
 
   @override
   void initState() {
@@ -48,7 +48,6 @@ class _ChatState extends State<Chat> {
       _loading = true;
     });
 
-    // Scroll to bottom
     await Future.delayed(const Duration(milliseconds: 50));
     _scrollToBottom();
 
@@ -92,6 +91,10 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
     setState(() => _loading = false);
   }
 
+  Future<void> _stopSpeaking() async {
+    await _flutterTts.stop();
+  }
+
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -102,7 +105,6 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
     }
   }
 
-  // 🎤 Start/stop listening
   void _toggleListening() async {
     if (!_isListening) {
       bool available = await _speech.initialize(
@@ -144,7 +146,11 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
         child: Container(
           decoration: BoxDecoration(
             gradient: RadialGradient(
-              colors: [AppColors.accent, AppColors.primary, AppColors.background],
+              colors: [
+                AppColors.accent,
+                AppColors.primary,
+                AppColors.background
+              ],
             ),
           ),
           child: Column(
@@ -159,17 +165,26 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                     final isUser = message["isUser"];
 
                     return Align(
-                      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                      alignment: isUser
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          color: isUser ? AppColors.accent : AppColors.primary,
+                          color: isUser
+                              ? AppColors.accent
+                              : AppColors.primary,
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(16),
                             topRight: const Radius.circular(16),
-                            bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(0),
-                            bottomRight: isUser ? const Radius.circular(0) : const Radius.circular(16),
+                            bottomLeft: isUser
+                                ? const Radius.circular(16)
+                                : const Radius.circular(0),
+                            bottomRight: isUser
+                                ? const Radius.circular(0)
+                                : const Radius.circular(16),
                           ),
                         ),
                         child: Row(
@@ -180,7 +195,9 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                               child: Text(
                                 message["text"],
                                 style: TextStyle(
-                                  color: isUser ? AppColors.text : AppColors.background,
+                                  color: isUser
+                                      ? AppColors.text
+                                      : AppColors.background,
                                   fontSize: 15,
                                 ),
                               ),
@@ -188,8 +205,10 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                             if (!isUser) ...[
                               const SizedBox(width: 6),
                               IconButton(
-                                icon: const Icon(Icons.volume_up, size: 20, color: Colors.white),
-                                onPressed: () => _flutterTts.speak(message["text"]),
+                                icon: const Icon(Icons.volume_up,
+                                    size: 20, color: Colors.white),
+                                onPressed: () =>
+                                    _flutterTts.speak(message["text"]),
                               )
                             ]
                           ],
@@ -199,10 +218,9 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                   },
                 ),
               ),
-
-              // Input field + buttons
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 color: Colors.white,
                 child: Row(
                   children: [
@@ -217,7 +235,8 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                           ),
                           filled: true,
                           fillColor: Colors.grey[200],
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
                         ),
                       ),
                     ),
@@ -233,10 +252,21 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                     ),
                     const SizedBox(width: 8),
                     CircleAvatar(
-                      backgroundColor: _isListening ? Colors.green : Colors.redAccent,
+                      backgroundColor:
+                      _isListening ? Colors.green : Colors.redAccent,
                       child: IconButton(
-                        icon: Icon(_isListening ? Icons.mic : Icons.mic_none, color: Colors.white),
+                        icon: Icon(
+                            _isListening ? Icons.mic : Icons.mic_none,
+                            color: Colors.white),
                         onPressed: _toggleListening,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    CircleAvatar(
+                      backgroundColor: Colors.grey,
+                      child: IconButton(
+                        icon: const Icon(Icons.stop, color: Colors.white),
+                        onPressed: _stopSpeaking,
                       ),
                     ),
                   ],

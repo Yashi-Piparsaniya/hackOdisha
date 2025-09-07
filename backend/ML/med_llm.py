@@ -153,6 +153,8 @@ disease_rules = {
 
 # ------------------------------ SPECIALISTS & CARE TIPS ------------------------------
 # ------------------------------ SPECIALISTS & CARE TIPS ------------------------------
+specialists = {}
+care_tips = {}
 specialists.update({
     "Migraine": "Neurologist",
     "Heart Attack": "Cardiologist",
