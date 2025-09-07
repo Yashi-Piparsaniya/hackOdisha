@@ -12,21 +12,22 @@ class _AssistantState extends State<Assistant> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: AppColors.primary,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: ShaderMask(
-          shaderCallback: (bounds) => LinearGradient(
-            colors: [AppColors.accent, AppColors.text], // gradient colors
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+          shaderCallback: (bounds) => AppColors.primaryGradient.createShader(
+            Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+          ),
           child: Text(
             "SwasthAI",
             style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 35,
-              color: Colors.white, // this color will be overridden by the gradient
+              fontWeight: FontWeight.w800,
+              fontSize: 28,
+              color: Colors.white,
+              letterSpacing: -0.5,
             ),
           ),
         ),
@@ -35,81 +36,97 @@ class _AssistantState extends State<Assistant> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Top header
+            // Top header with gradient
             Container(
               width: double.infinity,
-              height: 160,
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Hello! How are you feeling today?",
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayLarge
-                            ?.copyWith(color: AppColors.text, fontSize: 20),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        "Get instant advice from the AI assistant!",
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayMedium
-                            ?.copyWith(color: AppColors.text, fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                gradient: AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
-                ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      Icons.health_and_safety,
+                      size: 48,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Hello! How are you feeling today?",
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Get instant advice from the AI assistant!",
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
             // Grid View for Buttons
             Padding(
-              padding: const EdgeInsets.all(50.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: GridView.count(
                 crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: 1.6, // makes buttons smaller & wider
+                childAspectRatio: 1.2,
                 children: [
                   _buildGridItem(
                     context,
-                    icon: Icons.chat_outlined,
+                    icon: Icons.chat_bubble_outline,
                     label: "Chat",
+                    gradient: AppColors.accentGradient,
                     onTap: () => Navigator.pushNamed(context, "/chat"),
                   ),
                   _buildGridItem(
                     context,
                     icon: Icons.history,
                     label: "History",
+                    gradient: AppColors.secondaryGradient,
                     onTap: () => Navigator.pushNamed(context, "/history"),
                   ),
                   _buildGridItem(
                     context,
-                    icon: Icons.question_answer_outlined,
+                    icon: Icons.help_outline,
                     label: "FAQs",
+                    gradient: AppColors.primaryGradient,
                     onTap: () => Navigator.pushNamed(context, "/faq"),
                   ),
                   _buildGridItem(
                     context,
-                    icon: Icons.maps_home_work_sharp,
+                    icon: Icons.local_hospital_outlined,
                     label: "Hospitals/Pharmacies",
+                    gradient: AppColors.accentGradient,
                     onTap: () => Navigator.pushNamed(context, "/nhnp"),
                   ),
                 ],
@@ -125,30 +142,45 @@ class _AssistantState extends State<Assistant> {
   Widget _buildGridItem(BuildContext context,
       {required IconData icon,
         required String label,
+        required LinearGradient gradient,
         required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12), // smaller padding
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            colors: [AppColors.primary, AppColors.accent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          borderRadius: BorderRadius.circular(20),
+          gradient: gradient,
+          boxShadow: [
+            BoxShadow(
+              color: gradient.colors.first.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: AppColors.text, size: 28), // smaller icon
-            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 12),
             Text(
               label,
-              style: TextStyle(
-                color: AppColors.text,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Colors.white,
                 fontWeight: FontWeight.w600,
-                fontSize: 12, // smaller font
+                fontSize: 14,
               ),
               textAlign: TextAlign.center,
             )
