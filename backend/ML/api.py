@@ -1,7 +1,16 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Optional
+
 import med_llm  # Your existing ML logic
+import datetime
+from pymongo import MongoClient
+
+# Mongo setup
+MONGO_URI = "mongodb+srv://aditiguptachp20_db_user:HUImlQMeh0ReZqN6@swasthai.k8a9puu.mongodb.net/?retryWrites=true&w=majority&appName=SwasthAI"
+client = MongoClient(MONGO_URI)
+db = client["swasth_ai_db"]
+chat_collection = db["chat_history_large"]
 
 app = FastAPI(title="Swasth AI API")
 
@@ -55,3 +64,5 @@ def predict(request: PredictRequest):
 @app.get("/health")
 def health_check():
     return {"status": "API is running!"}
+
+
