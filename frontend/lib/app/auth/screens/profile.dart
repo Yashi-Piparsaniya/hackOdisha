@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../common/themes/colors.dart';
 
 class Profile extends StatefulWidget {
@@ -9,9 +12,47 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  User? user;
+  final TextEditingController _nameController = TextEditingController();
+  File? _image;
+
+  @override
+  void initState() {
+    super.initState();
+    user = FirebaseAuth.instance.currentUser;
+    _nameController.text = user?.displayName ?? "";
+  }
+
+  Future<void> _updateDisplayName() async {
+    if (_nameController.text.trim().isEmpty) return;
+    try {
+      await user!.updateDisplayName(_nameController.text.trim());
+      await user!.reload();
+      user = FirebaseAuth.instance.currentUser;
+      setState(() {});
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Username updated!")));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error updating username: $e")));
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile =
+    await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       backgroundColor: Colors.transparent,
       body: Container(
         decoration: const BoxDecoration(
@@ -248,6 +289,7 @@ class _ProfileState extends State<Profile> {
               Icons.arrow_forward_ios,
               color: AppColors.textLight,
               size: 16,
+
             ),
           ],
         ),

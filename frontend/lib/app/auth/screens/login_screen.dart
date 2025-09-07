@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../services/api_service.dart';
-import '../../common/themes/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../common/themes/colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,43 +12,82 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   late SharedPreferences prefs;
-  late TextEditingController emailController = TextEditingController();
-  late TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
-
     _initSharedPreferences();
   }
 
-  Future<void> _initSharedPreferences() async =>
-      prefs = await SharedPreferences.getInstance();
+  Future<void> _initSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+  }
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: AppColors.accent),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.accent),
         ),
-        behavior: SnackBarBehavior.floating ,
+        behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.primary,
       ),
     );
   }
 
-  bool isLoading = false;
+  Future<void> _login() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showSnackBar("Please fill all fields");
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      // Save logged-in state in SharedPreferences
+      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('userEmail', email);
+
+      if (!mounted) return;
+      _showSnackBar("Login Successful");
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      String message = "Something went wrong. Please try again.";
+
+      if (e.code == 'user-not-found') {
+        message = "No user found with this email.";
+      } else if (e.code == 'wrong-password') {
+        message = "Incorrect password.";
+      } else if (e.code == 'invalid-email') {
+        message = "Invalid email format.";
+      }
+
+      _showSnackBar(message);
+    } catch (e) {
+      _showSnackBar("An error occurred. Try again.");
+    }
+
+    setState(() => isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: ShaderMask(
@@ -63,8 +102,10 @@ class _LoginScreenState extends State<LoginScreen> {
               color: Colors.white,
             ),
           ),
+
         ),
       ),
+
       body: Container(
         decoration: const BoxDecoration(
           gradient: AppColors.backgroundGradient,
@@ -259,6 +300,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ],
+
                   ),
                 ),
                 

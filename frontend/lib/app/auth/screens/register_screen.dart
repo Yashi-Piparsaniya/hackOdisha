@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../services/api_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/themes/colors.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -16,22 +17,82 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscurePassword1 = true;
-
   bool isLoading = false;
+  late SharedPreferences prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSharedPreferences();
+  }
+
+  Future<void> _initSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
   void showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: AppColors.accent),
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: AppColors.accent),
         ),
-        behavior: SnackBarBehavior.floating ,
+        behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.primary,
       ),
     );
   }
+
+  Future<void> _register() async {
+    final username = usernameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (username.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      showSnack("All fields are required!");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      showSnack("Passwords do not match!");
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Optional: Save username or login state in SharedPreferences
+      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('userEmail', email);
+      await prefs.setString('username', username);
+
+      if (!mounted) return;
+      showSnack("Account created successfully!");
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      String message = "Registration failed!";
+      if (e.code == 'email-already-in-use') {
+        message = "Email is already in use.";
+      } else if (e.code == 'weak-password') {
+        message = "Password is too weak.";
+      } else if (e.code == 'invalid-email') {
+        message = "Invalid email format.";
+      }
+      showSnack(message);
+    } catch (e) {
+      showSnack("Error: $e");
+    }
+
+    setState(() => isLoading = false);
+  }
+
   @override
   void dispose() {
     usernameController.dispose();
@@ -41,13 +102,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: ShaderMask(
@@ -62,8 +123,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               color: Colors.white,
             ),
           ),
+
         ),
       ),
+
       body: Container(
         decoration: const BoxDecoration(
           gradient: AppColors.backgroundGradient,
@@ -300,6 +363,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ],
                 ),
+
               ],
             ),
           ),
