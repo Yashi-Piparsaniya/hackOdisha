@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:hack_odisha/services/city.dart';
 import 'package:http/http.dart' as http;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
-import '../../common/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../common/themes/colors.dart'; // Adjust path if needed
 
 class Chat extends StatefulWidget {
   const Chat({super.key});
@@ -15,17 +19,16 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final List<Map<String, dynamic>> _messages = [];
+  final List<Map<String, dynamic>> _messages = [
+    {"text": "Welcome to SwasthAI! Tell me how are you feeling?", "isUser": false}
+  ];
   bool _loading = false;
-
-  // 🎤 Speech-to-Text
   late stt.SpeechToText _speech;
   bool _isListening = false;
-
-  // 🔊 Text-to-Speech
   late FlutterTts _flutterTts;
+  String? _city;
 
-  static const String _apiUrl = "http://172.24.219.246:8000/predict"; // Change to your API
+  static const String _apiUrl = "http://172.24.219.246:8000/predict"; // Update as needed
 
   @override
   void initState() {
@@ -36,11 +39,76 @@ class _ChatState extends State<Chat> {
     _flutterTts.setSpeechRate(0.5);
     _flutterTts.setVolume(1.0);
     _flutterTts.setPitch(1.0);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await CityStorage.clearCity();
+      _loadCity();
+    });
+  }
+
+  Future<void> _loadCity() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedCity = prefs.getString('city');
+    print("Stored city: $storedCity");
+    if (storedCity == null || storedCity.isEmpty) {
+      print("Asking for city...");
+      _askForCityAndSave();
+    } else {
+      print("City already set.");
+      setState(() {
+        _city = storedCity;
+      });
+    }
+  }
+
+  Future<void> _askForCityAndSave() async {
+    String city = "";
+    final result = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) =>AlertDialog(
+        title: const Text("Enter City"),
+        content: TextField(
+          onChanged: (value) => city = value,
+          decoration: InputDecoration(
+            hintText: "City name",
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.primary, width: 2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.primary, width: 2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary, // Text color
+            ),
+            child: const Text("OK"),
+            onPressed: () {
+              if (city.trim().isNotEmpty) {
+                Navigator.pop(context, city.trim());
+              }
+            },
+          ),
+        ],
+      )
+    );
+
+    if (result != null && result.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('city', result);
+      setState(() {
+        _city = result;
+      });
+    }
   }
 
   Future<void> _sendMessage() async {
     final text = _controller.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || _city == null || _city!.isEmpty) return;
 
     setState(() {
       _messages.add({"text": text, "isUser": true});
@@ -57,7 +125,7 @@ class _ChatState extends State<Chat> {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "symptoms": text.split(',').map((s) => s.trim()).toList(),
-          "city": "Rourkela",
+          "city": _city,
         }),
       );
 
@@ -134,23 +202,16 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
       appBar: AppBar(
         title: const Text(
           "SwasthAI",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.accent,
       ),
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
             gradient: RadialGradient(
-              colors: [
-                AppColors.accent,
-                AppColors.primary,
-                AppColors.background
-              ],
+              colors: [AppColors.accent, AppColors.primary, AppColors.background],
             ),
           ),
           child: Column(
@@ -163,28 +224,18 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                   itemBuilder: (context, index) {
                     final message = _messages[index];
                     final isUser = message["isUser"];
-
                     return Align(
-                      alignment: isUser
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
+                      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          color: isUser
-                              ? AppColors.accent
-                              : AppColors.primary,
+                          color: isUser ? AppColors.accent : AppColors.primary,
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(16),
                             topRight: const Radius.circular(16),
-                            bottomLeft: isUser
-                                ? const Radius.circular(16)
-                                : const Radius.circular(0),
-                            bottomRight: isUser
-                                ? const Radius.circular(0)
-                                : const Radius.circular(16),
+                            bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(0),
+                            bottomRight: isUser ? const Radius.circular(0) : const Radius.circular(16),
                           ),
                         ),
                         child: Row(
@@ -192,23 +243,28 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Flexible(
-                              child: Text(
-                                message["text"],
+                              child: Linkify(
+                                text: message["text"],
                                 style: TextStyle(
-                                  color: isUser
-                                      ? AppColors.text
-                                      : AppColors.background,
+                                  color: isUser ? Colors.white : Colors.black87,
                                   fontSize: 15,
                                 ),
+                                onOpen: (link) async {
+                                  final url = link.url;
+                                  if (await canLaunch(url)) {
+                                    await launch(url);
+                                  } else {
+                                    print("Could not launch $url");
+                                  }
+                                },
                               ),
+
                             ),
                             if (!isUser) ...[
                               const SizedBox(width: 6),
                               IconButton(
-                                icon: const Icon(Icons.volume_up,
-                                    size: 20, color: Colors.white),
-                                onPressed: () =>
-                                    _flutterTts.speak(message["text"]),
+                                icon: const Icon(Icons.volume_up, size: 20, color: AppColors.accent),
+                                onPressed: () => _flutterTts.speak(message["text"]),
                               )
                             ]
                           ],
@@ -219,8 +275,7 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                 ),
               ),
               Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 color: Colors.white,
                 child: Row(
                   children: [
@@ -235,8 +290,7 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                           ),
                           filled: true,
                           fillColor: Colors.grey[200],
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         ),
                       ),
                     ),
@@ -252,15 +306,14 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                     ),
                     const SizedBox(width: 8),
                     CircleAvatar(
-                      backgroundColor:
-                      _isListening ? Colors.green : Colors.redAccent,
+                      backgroundColor: _isListening ? Colors.green : Colors.redAccent,
                       child: IconButton(
-                        icon: Icon(
-                            _isListening ? Icons.mic : Icons.mic_none,
-                            color: Colors.white),
+                        icon: Icon(_isListening ? Icons.mic : Icons.mic_none, color: Colors.white),
                         onPressed: _toggleListening,
                       ),
                     ),
+
+
                     const SizedBox(width: 8),
                     CircleAvatar(
                       backgroundColor: Colors.grey,

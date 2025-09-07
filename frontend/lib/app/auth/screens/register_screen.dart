@@ -122,7 +122,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Welcome! Let's get started...",
+              "Welcome! Register to start your health journey...",
               style: Theme.of(context)
                   .textTheme
                   .displayLarge
@@ -131,12 +131,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email',
+                  prefixIcon: Icon(Icons.mail_outline_sharp)
+              ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
+              decoration: const InputDecoration(labelText: 'Username',
+                  prefixIcon: Icon(Icons.person)
+              ),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -144,6 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               controller: passwordController,
               decoration: InputDecoration(
                 labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock_open_sharp),
                 suffixIcon: IconButton(
                   icon: Icon(
                       _obscurePassword ? Icons.visibility_off : Icons.visibility),
@@ -161,6 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               controller: confirmPasswordController,
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
+                  prefixIcon: Icon(Icons.lock_open_sharp),
                 suffixIcon: IconButton(
                   icon: Icon(
                       _obscurePassword1 ? Icons.visibility_off : Icons.visibility),

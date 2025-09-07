@@ -112,83 +112,96 @@ class _NHNPPageState extends State<NHNPPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: 0,
         backgroundColor: AppColors.accent,
-        title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  style: TextStyle(color: AppColors.text),
-                  decoration: InputDecoration(
-                    hintText: "Enter city name",
-                    hintStyle: TextStyle(color: AppColors.text.withOpacity(0.6)),
-                    border: InputBorder.none,
-                  ),
-                  onSubmitted: (value) {
-                    setState(() => city = value);
-                    fetchPlaces();
-                  },
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.search, color: AppColors.text),
-                onPressed: () {
-                  setState(() => city = _controller.text);
-                  fetchPlaces();
-                },
-              ),
-            ],
-          ),
+        title: const Text(
+          "Hospitals and Pharmacies in your city",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        centerTitle: true,
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : places.isEmpty
-          ? const Center(child: Text("No data found"))
-          : ListView.builder(
-        itemCount: places.length,
-        itemBuilder: (context, index) {
-          final place = places[index];
-          final tileColor = index % 2 == 0
-              ? AppColors.primary
-              : Colors.white;
-
-          return Card(
-            color: tileColor,
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      style: TextStyle(color: AppColors.text),
+                      decoration: InputDecoration(
+                        hintText: "Enter city name",
+                        hintStyle: TextStyle(color: AppColors.text.withOpacity(0.6)),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      ),
+                      onSubmitted: (value) {
+                        setState(() => city = value);
+                        fetchPlaces();
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.search, color: AppColors.text),
+                    onPressed: () {
+                      setState(() => city = _controller.text);
+                      fetchPlaces();
+                    },
+                  ),
+                ],
+              ),
             ),
-            child: ListTile(
-              leading: Icon(
-                place["type"] == "hospital"
-                    ? Icons.local_hospital
-                    : Icons.local_pharmacy,
-                color:
-                place["type"] == "hospital" ? Colors.red : Colors.green,
-              ),
-              title: Text(place["name"]),
-              subtitle: Text(
-                place["address"].isEmpty
-                    ? "Address not available"
-                    : place["address"],
-              ),
-              onTap: () {
-                final lat = place["lat"];
-                final lon = place["lon"];
-                if (lat != null && lon != null) {
-                  openMap(lat, lon);
-                }
+          ),
+          Expanded(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : places.isEmpty
+                ? const Center(child: Text("No data found"))
+                : ListView.builder(
+              itemCount: places.length,
+              itemBuilder: (context, index) {
+                final place = places[index];
+                final tileColor = index % 2 == 0
+                    ? AppColors.primary
+                    : Colors.white;
+
+                return Card(
+                  color: tileColor,
+                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    leading: Icon(
+                      place["type"] == "hospital"
+                          ? Icons.local_hospital
+                          : Icons.local_pharmacy,
+                      color: place["type"] == "hospital" ? Colors.red : Colors.green,
+                    ),
+                    title: Text(place["name"]),
+                    subtitle: Text(
+                      place["address"].isEmpty
+                          ? "Address not available"
+                          : place["address"],
+                    ),
+                    onTap: () {
+                      final lat = place["lat"];
+                      final lon = place["lon"];
+                      if (lat != null && lon != null) {
+                        openMap(lat, lon);
+                      }
+                    },
+                  ),
+                );
               },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
