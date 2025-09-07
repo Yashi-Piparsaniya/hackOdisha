@@ -14,8 +14,8 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
-
   bool _loading = false;
 
   // 🎤 Speech-to-Text
@@ -25,12 +25,13 @@ class _ChatState extends State<Chat> {
   // 🔊 Text-to-Speech
   late FlutterTts _flutterTts;
 
+  static const String _apiUrl = "http://172.24.219.246:8000/predict";
+
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
     _flutterTts = FlutterTts();
-
     _flutterTts.setLanguage("en-US");
     _flutterTts.setSpeechRate(0.5);
     _flutterTts.setVolume(1.0);
@@ -47,21 +48,22 @@ class _ChatState extends State<Chat> {
       _loading = true;
     });
 
-    try {
-      final url = Uri.parse("http://127.0.0.1:8000/predict"); // change IP for device
+    // Scroll to bottom
+    await Future.delayed(const Duration(milliseconds: 50));
+    _scrollToBottom();
 
+    try {
       final response = await http.post(
-        url,
+        Uri.parse(_apiUrl),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "symptoms": [text],
+          "symptoms": text.split(',').map((s) => s.trim()).toList(),
           "city": "Rourkela",
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         final botMessage = """
 Disease: ${data['disease'] ?? 'Unknown'}
 Confidence: ${data['confidence']}%
@@ -71,30 +73,33 @@ Care Tips: ${data['care_tips']}
 Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
 """;
 
-        setState(() {
-          _messages.add({"text": botMessage, "isUser": false});
-        });
-
-        // 🔊 Bot speaks automatically
+        setState(() => _messages.add({"text": botMessage, "isUser": false}));
+        _scrollToBottom();
         await _flutterTts.speak(botMessage);
       } else {
-        setState(() {
-          _messages.add({
-            "text": "⚠️ Error: ${response.statusCode}",
-            "isUser": false,
-          });
-        });
+        setState(() => _messages.add({
+          "text": "⚠️ Error: ${response.statusCode}",
+          "isUser": false,
+        }));
       }
     } catch (e) {
-      setState(() {
-        _messages.add({
-          "text": "❌ Failed to connect to server.",
-          "isUser": false,
-        });
-      });
+      setState(() => _messages.add({
+        "text": "❌ Failed to connect to server.",
+        "isUser": false,
+      }));
     }
 
     setState(() => _loading = false);
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   // 🎤 Start/stop listening
@@ -146,6 +151,7 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
             children: [
               Expanded(
                 child: ListView.builder(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(12),
                   itemCount: _messages.length,
                   itemBuilder: (context, index) {
@@ -153,25 +159,17 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                     final isUser = message["isUser"];
 
                     return Align(
-                      alignment:
-                      isUser ? Alignment.centerRight : Alignment.centerLeft,
+                      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
                           color: isUser ? AppColors.accent : AppColors.primary,
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(16),
                             topRight: const Radius.circular(16),
-                            bottomLeft: isUser
-                                ? const Radius.circular(16)
-                                : const Radius.circular(0),
-                            bottomRight: isUser
-                                ? const Radius.circular(0)
-                                : const Radius.circular(16),
+                            bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(0),
+                            bottomRight: isUser ? const Radius.circular(0) : const Radius.circular(16),
                           ),
                         ),
                         child: Row(
@@ -182,9 +180,7 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                               child: Text(
                                 message["text"],
                                 style: TextStyle(
-                                  color: isUser
-                                      ? AppColors.text
-                                      : AppColors.background,
+                                  color: isUser ? AppColors.text : AppColors.background,
                                   fontSize: 15,
                                 ),
                               ),
@@ -192,11 +188,8 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                             if (!isUser) ...[
                               const SizedBox(width: 6),
                               IconButton(
-                                icon: const Icon(Icons.volume_up,
-                                    size: 20, color: Colors.white),
-                                onPressed: () {
-                                  _flutterTts.speak(message["text"]);
-                                },
+                                icon: const Icon(Icons.volume_up, size: 20, color: Colors.white),
+                                onPressed: () => _flutterTts.speak(message["text"]),
                               )
                             ]
                           ],
@@ -209,8 +202,7 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
 
               // Input field + buttons
               Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 color: Colors.white,
                 child: Row(
                   children: [
@@ -225,35 +217,25 @@ Hospitals: ${(data['nearby_hospitals'] as List).join(", ")}
                           ),
                           filled: true,
                           fillColor: Colors.grey[200],
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
-
                     CircleAvatar(
                       backgroundColor: AppColors.primary,
                       child: IconButton(
                         icon: _loading
-                            ? const CircularProgressIndicator(
-                            color: Colors.white)
+                            ? const CircularProgressIndicator(color: Colors.white)
                             : const Icon(Icons.send, color: Colors.white),
                         onPressed: _loading ? null : _sendMessage,
                       ),
                     ),
                     const SizedBox(width: 8),
-
                     CircleAvatar(
-                      backgroundColor:
-                      _isListening ? Colors.green : Colors.redAccent,
+                      backgroundColor: _isListening ? Colors.green : Colors.redAccent,
                       child: IconButton(
-                        icon: Icon(
-                          _isListening ? Icons.mic : Icons.mic_none,
-                          color: Colors.white,
-                        ),
+                        icon: Icon(_isListening ? Icons.mic : Icons.mic_none, color: Colors.white),
                         onPressed: _toggleListening,
                       ),
                     ),
